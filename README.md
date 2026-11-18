@@ -1,6 +1,9 @@
 # Boletim do Monitor da Água — MapBiomas Água
 
-**Página:** https://pedrogalve00.github.io/boletim-monitor-agua/
+**Página:** https://mapbiomas.github.io/brazil-water-monitor-bulletin/
+**Repositório:** https://github.com/mapbiomas/brazil-water-monitor-bulletin
+
+> Este é o repositório oficial do boletim no MapBiomas. A versão de teste em `pedrogalve00/boletim-monitor-agua` deixa de ser atualizada.
 
 Página única (`index.html`), no mesmo modelo do boletim do Monitor do Fogo: não tem build nem servidor.
 Ao abrir, ela baixa as planilhas mensais v3 e os contornos (série considerada **a partir de 2019**, `ANO_INICIO` no código), acha sozinha o último mês com dados, faz as
@@ -40,8 +43,8 @@ Os contornos vêm dos **mesmos assets usados nas estatísticas** do Monitor:
 
 ## Todo mês
 
-1. Substitua os 4 CSVs `stats_*_v3.csv` em `dados/` (mesmos nomes; colunas `nivel, feature_id, nome, ano, mes, ha_agua_obs, ha_agua_est, ha_agua, n_cartas` — a página usa `ha_agua`, ignora `feature_id` 0 "sem feição" e tira os colchetes dos nomes), **só com os anos de 2019 em diante** — a página ignora anos anteriores, mas o que está no repositório fica público.
-2. Publique (commit no repositório com GitHub Pages ligado).
+1. Substitua os 4 CSVs `stats_*_v3.csv` em `dados/` (mesmos nomes; colunas `nivel, feature_id, nome, ano, mes, ha_agua_obs, ha_agua_est, ha_agua, n_cartas` — a página usa `ha_agua`, tira os colchetes dos nomes e ignora `feature_id` 0 "sem feição" nas bacias; nos estados, o `feature_id` 0 é o Rio Grande do Sul), **só com os anos de 2019 em diante** — a página ignora anos anteriores, mas o que está no repositório fica público.
+2. Publique: commit na branch `main`. O GitHub Pages atualiza a página em alguns minutos (se aparecer a versão antiga, Ctrl+Shift+R).
 3. Abra a página → **Exportar PDF**.
 
 > Se o último mês da planilha só repetir o mês anterior (ex.: dezembro = novembro na maioria dos biomas), a página abre no mês anterior e mostra um aviso no topo. O mês repetido continua disponível no seletor.
@@ -76,3 +79,8 @@ todos os territórios. As contas são as mesmas do Colab `boletim_agua_mensal.ip
 - No asset de estados o Rio Grande do Sul tem `FEATURE_ID` 0, e a planilha o chama de "sem feição"; a página o renomeia para Rio Grande do Sul.
   Nas planilhas de bacias, "sem feição" (água fora dos polígonos do DHN250, ~1,8 Mha, quase constante) continua de fora.
 - Nomes com acento quebrado na planilha (ex.: `Amap\ufffd`) são corrigidos pelo nome do contorno.
+
+## Publicação (GitHub Pages)
+
+Configurado uma vez em **Settings → Pages → Build and deployment**: *Deploy from a branch*, branch `main`, pasta `/ (root)`.
+O arquivo `.nojekyll` na raiz faz o GitHub publicar os arquivos como estão.
