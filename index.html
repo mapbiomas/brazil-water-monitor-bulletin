@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Boletim do Monitor da Água — MapBiomas Água</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  /* ===== Identidade do factsheet MapBiomas Água (16:9, Montserrat, azuis) ===== */
+  :root{
+    --azul:#4a8fdb;      /* anéis, triângulos, número da página */
+    --azul-txt:#3b7dd8;  /* palavras em destaque */
+    --azul-esc:#1f4e9c;
+    --navy:#0d1b5e;      /* ano do boletim nos gráficos */
+    --laranja:#e8862a;   /* média histórica */
+    --verm:#8b1e1e;      /* perda */
+    --ink:#111; --ink2:#444; --muted:#777; --line:#e5e8ee;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Montserrat,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:#e9edf2}
+  .top{position:sticky;top:0;z-index:5;display:flex;gap:12px;align-items:center;padding:8px 18px;background:#fff;border-bottom:1px solid var(--line);font-size:13px}
+  .top img{height:30px}
+  .top .esp{flex:1}
+  .top button,.top select{font:inherit;font-size:12.5px;padding:6px 12px;border:1px solid #cfd6e0;border-radius:8px;background:#fff;cursor:pointer}
+  .top button.pri{background:var(--azul);color:#fff;border-color:var(--azul);font-weight:600}
+  #status{font-size:12px;color:var(--muted)}
+  .folhas{display:flex;flex-direction:column;align-items:center;gap:22px;padding:22px}
+
+  /* slide 16:9 */
+  .slide{width:1280px;height:720px;background:#fff;box-shadow:0 3px 14px rgba(0,0,0,.10);position:relative;overflow:hidden;display:flex;flex-direction:column}
+  .hd{height:66px;display:flex;align-items:center;padding:0 26px;position:relative;flex:none}
+  .hd img{height:40px}
+  .hd h2{position:absolute;left:0;right:0;text-align:center;margin:0;font-size:21px;font-weight:600;pointer-events:none}
+  .hd .num{position:absolute;right:26px;top:12px;width:40px;height:40px;border-radius:50%;background:var(--azul);color:#fff;font-weight:600;display:flex;align-items:center;justify-content:center;font-size:15px}
+  .barra{height:5px;flex:none;background:linear-gradient(90deg,#3d7fd4 0 28%,#fff 28% 28.4%,#8bb9ec 28.4% 50%,#fff 50% 50.4%,#4a8fdb 50.4% 74%,#fff 74% 74.4%,#a9cdf3 74.4% 100%)}
+  .corpo{flex:1;min-height:0;padding:14px 30px 30px;display:grid;gap:14px}
+  .rodape{position:absolute;bottom:8px;left:30px;right:26px;display:flex;justify-content:space-between;font-size:9.5px;color:#999}
+  .rodape i{font-style:italic}
+
+  /* textos e destaques */
+  .txt{font-size:15px;line-height:1.35;color:var(--ink)}
+  .dest{color:var(--azul-txt);font-weight:700}
+  .dneg{color:var(--verm);font-weight:700}
+  .grande{font-size:44px;font-weight:600;color:var(--azul-esc);line-height:1}
+  .caixa{border:1.5px solid var(--azul);border-radius:14px;padding:12px 16px;background:#fff;box-shadow:8px 8px 0 #dcdcdc;font-size:14px;line-height:1.35}
+  .caixa .big{font-size:20px;font-weight:700;color:var(--azul-txt)}
+  .callout{display:flex;align-items:center;gap:12px}
+  .anel{display:flex;align-items:center;gap:8px}
+  .anel .p{font-size:30px;font-weight:700;color:var(--azul-esc)}
+  .tit-graf{font-size:14px;font-weight:700;text-align:center;margin-bottom:4px}
+  .msg{font-size:12.5px;line-height:1.35;background:#f4f8fd;border-left:4px solid #4a8fdb;border-radius:6px;padding:7px 10px;margin-top:6px}
+  .col{display:flex;flex-direction:column;min-height:0;gap:6px}
+  .bloco{position:relative;display:flex;flex-direction:column;min-height:0}
+  .bloco svg{width:100%;height:100%;min-height:0;flex:1}
+  .acoes{position:absolute;top:0;right:0;display:flex;gap:4px}
+  .acoes button{font:inherit;font-size:9px;font-weight:600;padding:2px 6px;border:1px solid #d5dbe4;border-radius:6px;background:#fff;cursor:pointer;color:#555}
+  .erro{color:var(--verm);font-weight:700}
+  table.rk{width:100%;border-collapse:collapse;font-size:11px}
+  table.rk th{background:#4a8fdb;color:#fff;font-weight:600;padding:3px 6px;text-align:right}
+  table.rk td{padding:2px 6px;text-align:right;border-bottom:1px solid #e8edf4}
+  table.rk th:nth-child(-n+2),table.rk td:nth-child(-n+2){text-align:center}
+  table.rk tbody tr:nth-child(even){background:#f4f8fd}
+
+  /* capa */
+  .capa{padding:60px 70px;justify-content:center}
+  .capa h1{font-size:52px;line-height:1.08;margin:0 0 10px;font-weight:700;max-width:640px}
+  .capa .sub{font-size:22px;color:var(--ink2)}
+  .capa .bola{position:absolute;border-radius:50%}
+
+  @media print{
+    @page{size:338.67mm 190.5mm;margin:0}
+    body{background:#fff}
+    .top,.acoes,.no-print{display:none!important}
+    .folhas{padding:0;gap:0}
+    .slide{box-shadow:none;break-after:page;page-break-after:always;zoom:1}
+  }
+</style>
+</head>
+<body>
+<div class="top no-print">
+  <img src="img/logo_mapbiomas_agua.png" alt="MapBiomas Água">
+  <span>Boletim do Monitor da Água</span>
+  <span class="esp"></span>
+  <label>Mês: <select id="selMes"></select></label>
+  <span id="status">Carregando planilhas…</span>
+  <button id="btnCsvTudo">Baixar dados (CSV)</button>
+  <button class="pri" onclick="window.print()">Exportar PDF</button>
+</div>
+<div class="folhas" id="folhas"></div>
+
+<script>
+/* =====================================================================
+   CONFIGURAÇÃO
+   Planilhas mensais v3 em dados/ e contornos em geo/ (gerados pelo Colab
+   colab/exportar_contornos_boletim.ipynb). Todo mês: trocar os 4 CSVs de dados/.
+   ===================================================================== */
+const Q = new URLSearchParams(location.search);
+const DADOS_BASE = Q.get('dados') || './dados/';
+const GEO_BASE = Q.get('geo') || './geo/';
+const LOGO = 'img/logo_mapbiomas_agua.png';
+const ANO_INICIO = +(Q.get('inicio') || 2019);   // série histórica considerada a partir deste ano
+const NIVEIS = [
+  {ch:'bioma',     arq:'stats_bioma_v3.csv',              rot:'Biomas',               sing:'Bioma',               art:'os biomas', das:'dos biomas',  um:'bioma'},
+  {ch:'estado',    arq:'stats_estado_v3.csv',              rot:'Estados',              sing:'Estado',              art:'as UFs', das:'das UFs',     um:'UF'},
+  {ch:'bacia_n1',  arq:'stats_bacia_n1_v3.csv', rot:'Bacias hidrográficas nível 1', sing:'Bacia hidrográfica nível 1', art:'as bacias hidrográficas nível 1', das:'das bacias hidrográficas nível 1', um:'bacia'},
+  {ch:'bacia_n2',  arq:'stats_bacia_n2_v3.csv', rot:'Bacias hidrográficas nível 2', sing:'Bacia hidrográfica nível 2', art:'as bacias hidrográficas nível 2', das:'das bacias hidrográficas nível 2', um:'bacia'},
+];
+const EXCLUIR = new Set(['Fernando de Noronha','Ilha de Fernando de Noronha']);
+const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const MES3 = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const UF_SIGLA = {'Acre':'AC','Alagoas':'AL','Amapá':'AP','Amazonas':'AM','Bahia':'BA','Ceará':'CE','Distrito Federal':'DF','Espírito Santo':'ES','Goiás':'GO','Maranhão':'MA','Mato Grosso':'MT','Mato Grosso do Sul':'MS','Minas Gerais':'MG','Pará':'PA','Paraíba':'PB','Paraná':'PR','Pernambuco':'PE','Piauí':'PI','Rio de Janeiro':'RJ','Rio Grande do Norte':'RN','Rio Grande do Sul':'RS','Rondônia':'RO','Roraima':'RR','Santa Catarina':'SC','São Paulo':'SP','Sergipe':'SE','Tocantins':'TO'};
+
+/* ===================== LEITURA DOS CSVs (mesma regra do Colab) ===================== */
+const CAND = {
+  code:['feature_id','code','CD_BIOMA','CD_Bioma','CD_UF','RHI_CD','PS1_CD','PS2_CD','CD_MUN','HYBAS_ID','codigo','id'],
+  name:['name','NM_BIOMA','Bioma','NM_UF','RHI_NM','PS1_NM','PS2_NM','NM_MUN','nome','bioma','estado'],
+  year:['year','ano'], month:['month','mes','mês'],
+  area:['ha_agua','area_ha','water_surface_area_ha','water_surface_ha','superficie_agua_ha','area','value','valor'],
+};
+function parseCSV(txt){
+  txt = txt.replace(/^﻿/,'');
+  const l0 = txt.slice(0, txt.indexOf('\n'));
+  const sep = (l0.split(',').length >= l0.split(';').length) ? ',' : ';';
+  const rows=[]; let campo='', linha=[], aspas=false;
+  for(let i=0;i<txt.length;i++){
+    const c=txt[i];
+    if(aspas){ if(c=='"'){ if(txt[i+1]=='"'){campo+='"';i++;} else aspas=false; } else campo+=c; }
+    else if(c=='"') aspas=true;
+    else if(c==sep){ linha.push(campo); campo=''; }
+    else if(c=='\n'){ linha.push(campo.replace(/\r$/,'')); rows.push(linha); linha=[]; campo=''; }
+    else campo+=c;
+  }
+  if(campo!=='' || linha.length){ linha.push(campo.replace(/\r$/,'')); rows.push(linha); }
+  return rows.filter(r=>r.length>1 || (r[0]||'').trim()!=='');
+}
+function col(cab, cands){
+  const m = Object.fromEntries(cab.map((c,i)=>[c.trim().toLowerCase(), i]));
+  for(const c of cands){ if(m[c.toLowerCase()]!==undefined) return m[c.toLowerCase()]; }
+  return -1;
+}
+function parseArea(v){
+  let s = String(v??'').trim().replace(/\s/g,'');
+  if(!s || ['nan','none','-'].includes(s.toLowerCase())) return NaN;
+  if(s.includes(',') && s.includes('.')) s = s.lastIndexOf(',')>s.lastIndexOf('.') ? s.replace(/\./g,'').replace(',','.') : s.replace(/,/g,'');
+  else if(s.includes(',')) s = s.replace(',','.');
+  const n = Number(s); return Number.isFinite(n) ? n : NaN;
+}
+const normCode = x => (String(x).trim().replace(/\.0+$/,'').replace(/^0+/,'') || '0');
+const chaveNome = s => String(s).normalize('NFKD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
+
+/** CSV → Map code → {code, name, serie: Map(ym → ha)} (linhas repetidas por bioma são somadas) */
+/** Nome com acento quebrado na planilha ("Amap\ufffd") → nome certo do contorno ("Amapá") */
+function consertarNome(nome, nomesGeo){
+  if(!nome.includes('\ufffd') || !nomesGeo || !nomesGeo.length) return nome;
+  const re = new RegExp('^' + nome.split('\ufffd').map(t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('.{1,2}') + '$', 'i');
+  return nomesGeo.find(n=>re.test(n)) || nome;
+}
+// Nomes em CAIXA ALTA (ex.: "ATLÂNTICO NORDESTE ORIENTAL") -> "Atlântico Nordeste Oriental"
+function capitalizar(nome){
+  if(!nome || nome !== nome.toUpperCase() || !/[A-ZÀ-Ý]{3}/.test(nome)) return nome;
+  return nome.toLowerCase().split(/(\s+|-|\/)/).map((p,i)=>
+    (i>0 && /^(da|das|de|do|dos|e)$/.test(p)) ? p : p.charAt(0).toUpperCase()+p.slice(1)).join('');
+}
+function lerNivel(txt, arq, nomesGeo){
+  const rows = parseCSV(txt); const cab = rows[0];
+  const ix = Object.fromEntries(Object.entries(CAND).map(([k,c])=>[k, col(cab,c)]));
+  const falta = Object.entries(ix).filter(([,i])=>i<0).map(([k])=>k);
+  if(falta.length) throw new Error(`${arq}: não achei as colunas ${falta.join(', ')}. Colunas: ${cab.join(', ')}`);
+  const T = new Map();
+  for(let r=1;r<rows.length;r++){
+    const L = rows[r]; let nome = capitalizar(consertarNome((L[ix.name]||'').trim().replace(/^\[|\]$/g,'').trim(), nomesGeo));
+    // Estados: o RS tem FEATURE_ID 0 no asset ESTADOS_IBGE_2025, e a planilha o chama de "sem feição"
+    const rsSemFeicao = /estado/i.test(arq) && (/^sem fei/i.test(nome) || normCode(L[ix.code])==='0');
+    if(rsSemFeicao) nome = 'Rio Grande do Sul';
+    else if(EXCLUIR.has(nome) || /^sem fei/i.test(nome) || normCode(L[ix.code])==='0') continue;
+    const a = parseArea(L[ix.area]); const y = parseInt(L[ix.year]); const m = parseInt(L[ix.month]);
+    if(!Number.isFinite(a) || !(m>=1 && m<=12) || !Number.isFinite(y) || y < ANO_INICIO) continue;
+    const c = normCode(L[ix.code]); const ym = y*100+m;
+    if(!T.has(c)) T.set(c, {code:c, name:nome, serie:new Map()});
+    const t = T.get(c); t.name = nome; t.serie.set(ym, (t.serie.get(ym)||0) + a);
+  }
+  return T;
+}
+
+/* ===================== CÁLCULOS (porta direta do Colab) ===================== */
+const mesAnterior = ref => ref%100===1 ? (Math.floor(ref/100)-1)*100+12 : ref-1;
+const nomeMesAnt = ref => { const a=mesAnterior(ref); return `${MESES[a%100-1].toLowerCase()} de ${Math.floor(a/100)}`; };
+function rankMin(vals, v){ let k=1; for(const x of vals) if(x>v) k++; return k; }
+function metricas(serie, ref){
+  const mes = ref%100;
+  const pts = [...serie.entries()].filter(([ym])=>ym<=ref);
+  const porMes = {}; for(const [ym,v] of pts){ (porMes[ym%100] ||= []).push(v); }
+  const media = {}; for(const k in porMes){ media[k] = porMes[k].reduce((a,b)=>a+b,0)/porMes[k].length; }
+  const devs = pts.map(([ym,v])=> media[ym%100]>0 ? (v-media[ym%100])/media[ym%100]*100 : NaN).filter(Number.isFinite);
+  const agua = serie.get(ref);
+  const vAnt = serie.get(mesAnterior(ref));
+  if(agua===undefined) return {agua:NaN, media:media[mes]??NaN, dif:NaN, dev:NaN, rankHist:NaN, nHist:devs.length, posMes:NaN, nMes:(porMes[mes]||[]).length, aguaAnt:vAnt??NaN, difAnt:NaN, pctAnt:NaN};
+  const m = media[mes]; const dev = m>0 ? (agua-m)/m*100 : NaN;
+  return {agua, media:m, dif:agua-m, dev,
+          aguaAnt: vAnt??NaN, difAnt: vAnt!==undefined ? agua-vAnt : NaN, pctAnt: vAnt>0 ? (agua-vAnt)/vAnt*100 : NaN,
+          rankHist: Number.isFinite(dev) ? rankMin(devs, dev) : NaN, nHist: devs.length,
+          posMes: rankMin(porMes[mes], agua), nMes: porMes[mes].length};
+}
+function frasePos(pos, n, mes, curta=false){
+  if(!Number.isFinite(pos) || !n) return '—';
+  const nome = MESES[mes-1].toLowerCase();
+  let k, lado; if(pos <= Math.ceil(n/2)){ k=pos; lado='maior'; } else { k=n-pos+1; lado='menor'; }
+  if(curta) return k===1 ? `${lado} de ${n}` : `${k}º ${lado} de ${n}`;
+  const base = `${lado} ${nome} em ${n} ${n===1?'ano':'anos'}`;
+  return k===1 ? base : `${k}º ${base}`;
+}
+function tabelaNivel(T, ref){
+  const out=[];
+  if(!T) return out;
+  for(const t of T.values()){
+    if(![...t.serie.keys()].some(ym=>ym<=ref)) continue;
+    const mt = metricas(t.serie, ref);
+    out.push({code:t.code, name:t.name, ...mt, frase:frasePos(mt.posMes, mt.nMes, ref%100), fraseCurta:frasePos(mt.posMes, mt.nMes, ref%100, true)});
+  }
+  return out;
+}
+function extremos(tab){
+  const d = tab.filter(r=>Number.isFinite(r.dev));
+  if(!d.length) return {GANHO:null, PERDA:null};
+  return {GANHO: d.reduce((a,b)=>b.dev>a.dev?b:a), PERDA: d.reduce((a,b)=>b.dev<a.dev?b:a)};
+}
+function serieBrasil(Tbio){
+  const s = new Map();
+  for(const t of Tbio.values()) for(const [ym,v] of t.serie) s.set(ym, (s.get(ym)||0)+v);
+  return s;
+}
+
+/* ===================== FORMATAÇÃO ===================== */
+const nf = (v,d=0) => Number.isFinite(v) ? v.toLocaleString('pt-BR',{minimumFractionDigits:d, maximumFractionDigits:d}) : '—';
+const pctAbs = v => Number.isFinite(v) ? `${nf(Math.abs(v),1)}%` : '—';
+const pctS = v => Number.isFinite(v) ? `${v>0?'+':v<0?'−':''}${nf(Math.abs(v),1)}%` : '—';
+const mha = v => `${nf(v/1e6,1)} Mha`;
+function haTxt(v, sinal=true){
+  if(!Number.isFinite(v)) return '—';
+  const s = sinal ? (v>0?'+':v<0?'−':'') : ''; const a=Math.abs(v);
+  if(a>=1e6) return `${s}${nf(a/1e6,1)} Mha`;
+  if(a>=1e3) return `${s}${nf(a/1e3,0)} mil ha`;
+  return `${s}${nf(a,0)} ha`;
+}
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const slug = s => String(s).normalize('NFKD').replace(/[̀-ͯ]/g,'').replace(/[^a-zA-Z0-9]+/g,'_').replace(/^_|_$/g,'').toLowerCase();
+const acimaAbaixo = v => v>=0 ? '<span class="dest">acima da média histórica</span>' : '<span class="dneg">abaixo da média histórica</span>';
+
+/* cores */
+const RDBU = ['#67001f','#b2182b','#d6604d','#f4a582','#fddbc7','#f7f7f7','#d1e5f0','#92c5de','#4393c3','#2166ac','#053061'];
+function interp(hexs, t){
+  t = Math.max(0, Math.min(1, t)) * (hexs.length-1);
+  const i = Math.min(hexs.length-2, Math.floor(t)), f = t-i;
+  const h = x=>[1,3,5].map(k=>parseInt(x.slice(k,k+2),16)); const a=h(hexs[i]), b=h(hexs[i+1]);
+  return '#'+a.map((v,k)=>Math.round(v+(b[k]-v)*f).toString(16).padStart(2,'0')).join('');
+}
+const corDesvio = p => Number.isFinite(p) ? interp(RDBU, (Math.max(-60,Math.min(60,p))+60)/120) : '#e0e0e0';
+const corAno = t => interp(['#c9f1ff','#7fd3f0','#3aa0d8','#1b5fae','#0d1b5e'], t);    // 1985 claro → ano recente escuro
+
+/* ===================== SVG: utilidades ===================== */
+const FONTE = 'font-family="Montserrat,system-ui,sans-serif"';
+function ticks(min, max, n=5){
+  const passo0 = (max-min)/n, p10 = Math.pow(10, Math.floor(Math.log10(passo0)));
+  const passo = [1,2,2.5,5,10].map(k=>k*p10).find(s=>s>=passo0) || 10*p10;
+  const ini = Math.floor(min/passo)*passo, out=[];
+  for(let v=ini; ; v+=passo){ out.push(+v.toFixed(10)); if(v>=max-passo*1e-9) break; }
+  return out;
+}
+function eixoY(s, tk, y, m, W, fmt, rot, H){
+  tk.forEach(v=>{ s.push(`<line x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}" stroke="#e6e6e6"/>`);
+                  s.push(`<text x="${m.l-8}" y="${y(v)+4}" font-size="12.5" text-anchor="end" fill="#333">${fmt(v)}</text>`); });
+  s.push(`<text transform="translate(14 ${(m.t+H-m.b)/2}) rotate(-90)" font-size="12.5" text-anchor="middle" fill="#333">${rot}</text>`);
+}
+
+/** Linhas mensais, uma por ano (estilo do factsheet): anos anteriores em azuis, ano do boletim em azul-escuro, média em laranja */
+function svgLinhasMensais(serie, ref, {W=600, H=360, unid=1e3, rot='Superfície de água (Kha)', dec=0, legenda=false}={}){
+  const anoRef = Math.floor(ref/100), anos = new Set();
+  for(const ym of serie.keys()) if(ym<=ref) anos.add(Math.floor(ym/100));
+  const lista = [...anos].sort(); const a0 = lista[0];
+  const val = (a,m)=>serie.get(a*100+m);
+  const media = []; for(let m=1;m<=12;m++){ const xs=lista.map(a=>val(a,m)).filter((v,i)=>v!==undefined && (lista[i]*100+m)<=ref); media.push(xs.reduce((p,c)=>p+c,0)/xs.length/unid); }
+  let vmin=Infinity, vmax=-Infinity;
+  for(const a of lista) for(let m=1;m<=12;m++){ const v=val(a,m); if(v!==undefined && a*100+m<=ref){ vmin=Math.min(vmin,v/unid); vmax=Math.max(vmax,v/unid);} }
+  const tk = ticks(vmin, vmax, 6), lo=tk[0], hi=tk[tk.length-1];
+  const m = {l:62, r:12, t:legenda?40:10, b:26};
+  const x = i => m.l + i*(W-m.l-m.r)/11, y = v => m.t + (H-m.t-m.b)*(1-(v-lo)/(hi-lo));
+  const s=[`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" ${FONTE}>`];
+  eixoY(s, tk, y, m, W, v=>nf(v,dec), rot, H);
+  MES3.forEach((t,i)=>s.push(`<text x="${x(i)}" y="${H-m.b+17}" font-size="12" text-anchor="middle" fill="#333">${t}</text>`));
+  const linha = (pts, cor, w, extra='') => `<polyline points="${pts.map(([i,v])=>`${x(i)},${y(v)}`).join(' ')}" fill="none" stroke="${cor}" stroke-width="${w}" stroke-linejoin="round" ${extra}/>`;
+  for(const a of lista){ if(a===anoRef) continue;
+    const pts=[]; for(let mm=1;mm<=12;mm++){ const v=val(a,mm); if(v!==undefined) pts.push([mm-1, v/unid]); }
+    s.push(linha(pts, corAno((a-a0)/Math.max(1,(anoRef-1)-a0)), 1.1, 'opacity=".75"')); }
+  s.push(linha(media.map((v,i)=>[i,v]), 'var(--laranja,#e8862a)', 2.6));
+  const ptsRef=[]; for(let mm=1;mm<=ref%100;mm++){ const v=val(anoRef,mm); if(v!==undefined) ptsRef.push([mm-1, v/unid]); }
+  s.push(linha(ptsRef, '#0d1b5e', 3.2));
+  if(ptsRef.length){ const [i,v]=ptsRef[ptsRef.length-1]; s.push(`<circle cx="${x(i)}" cy="${y(v)}" r="4.5" fill="#0d1b5e"/>`); }
+  if(legenda){
+    s.push(`<line x1="${m.l}" x2="${m.l+26}" y1="12" y2="12" stroke="#0d1b5e" stroke-width="3.2"/><text x="${m.l+32}" y="16" font-size="12">${anoRef}</text>`);
+    s.push(`<line x1="${m.l+80}" x2="${m.l+106}" y1="12" y2="12" stroke="#e8862a" stroke-width="2.6"/><text x="${m.l+112}" y="16" font-size="12">Média histórica (${a0}–${anoRef})</text>`);
+    s.push(`<defs><linearGradient id="gAno"><stop offset="0" stop-color="${corAno(0)}"/><stop offset="1" stop-color="${corAno(1)}"/></linearGradient></defs>`);
+    s.push(`<rect x="${m.l+330}" y="6" width="60" height="11" fill="url(#gAno)"/><text x="${m.l+396}" y="16" font-size="12">${a0}–${anoRef-1}</text>`);
+  }
+  s.push('</svg>');
+  return s.join('');
+}
+
+/** Série do mês de referência ao longo dos anos + média tracejada */
+function svgSerieMes(pts, anoRef, media, {W=600, H=360, unid=1e6, rot='Superfície de água (Mha)', dec=1}={}){
+  const vs = pts.map(p=>p.v/unid), tk = ticks(Math.min(...vs, media/unid), Math.max(...vs, media/unid), 6), lo=tk[0], hi=tk[tk.length-1];
+  const m={l:62,r:14,t:16,b:30};
+  const a0=pts[0].ano, a1=pts[pts.length-1].ano;
+  const x = a => m.l + (a-a0)*(W-m.l-m.r)/Math.max(1,a1-a0), y = v => m.t + (H-m.t-m.b)*(1-(v-lo)/(hi-lo));
+  const s=[`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" ${FONTE}>`];
+  eixoY(s, tk, y, m, W, v=>nf(v,dec), rot, H);
+  for(let a=Math.ceil(a0/5)*5; a<=a1; a+=5) s.push(`<text transform="translate(${x(a)+4} ${H-m.b+12}) rotate(-35)" font-size="12" text-anchor="end" fill="#333">${a}</text>`);
+  const ym = y(media/unid);
+  s.push(`<line x1="${m.l}" x2="${W-m.r}" y1="${ym}" y2="${ym}" stroke="#111" stroke-width="1.6" stroke-dasharray="4 4"/>`);
+  s.push(`<text x="${m.l+6}" y="${ym-6}" font-size="12" font-weight="700" fill="#111">média ${nf(media/unid,dec)}</text>`);
+  s.push(`<polyline points="${pts.map(p=>`${x(p.ano)},${y(p.v/unid)}`).join(' ')}" fill="none" stroke="#2a39e8" stroke-width="1.8"/>`);
+  const r = pts.find(p=>p.ano===anoRef);
+  if(r){ s.push(`<circle cx="${x(r.ano)}" cy="${y(r.v/unid)}" r="5" fill="#0d1b5e"/><text x="${x(r.ano)-6}" y="${y(r.v/unid)+(r.v/unid<media/unid?18:-9)}" font-size="13" font-weight="700" text-anchor="end" fill="#0d1b5e">${nf(r.v/unid,dec)}</text>`); }
+  s.push('</svg>');
+  return s.join('');
+}
+
+/** Barras horizontais da diferença absoluta vs média (ganho azul, perda vermelho-escuro) */
+function svgBarras(rows, {W=560, lh=null, rotX='Diferença absoluta vs média histórica do mês'}={}){
+  lh = lh || (rows.length<=8 ? 38 : rows.length<=14 ? 28 : 19);
+  const fs = rows.length<=8 ? 13 : lh<16 ? 10.5 : 11.5;
+  const m={l:178,r:12,t:6,b:34}, H=m.t+m.b+rows.length*lh, A=W-m.l-m.r, L=128;   // L = espaço do rótulo
+  const vs = rows.map(r=>r.dif/1e3), lo=Math.min(0,...vs), hi=Math.max(0,...vs);
+  const temNeg = vs.some(v=>v<0), temPos = vs.some(v=>v>0);
+  // escala: à esquerda do zero cabem as barras negativas e os rótulos das positivas; à direita, o contrário
+  let k = A/Math.max(1e-9, hi-lo);
+  for(let i=0;i<30;i++){ const esq=Math.max(-lo*k, temPos?L:0), dir=Math.max(hi*k, temNeg?L:0); k *= A/(esq+dir); }
+  const esq = Math.max(-lo*k, temPos?L:0), x0 = m.l + esq, x = v => x0 + v*k;
+  const s=[`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" ${FONTE}>`];
+  ticks(lo, hi, 4).forEach(v=>{ const xv=x(v); if(xv<m.l-1||xv>W-m.r+1) return; s.push(`<line x1="${xv}" x2="${xv}" y1="${m.t}" y2="${H-m.b}" stroke="#eee"/><text x="${xv}" y="${H-m.b+14}" font-size="10.5" text-anchor="middle" fill="#444">${nf(v,0)}</text>`); });
+  rows.forEach((r,i)=>{
+    const yy=m.t+i*lh, v=r.dif/1e3, x1=x(v), cor = v>=0 ? '#2b6cc4' : '#8b1e1e';
+    s.push(`<rect x="${Math.min(x0,x1)}" y="${yy+lh*0.18}" width="${Math.max(1.5,Math.abs(x1-x0))}" height="${lh*0.64}" fill="${cor}"/>`);
+    s.push(`<text x="${m.l-6}" y="${yy+lh/2+4}" font-size="${fs}" text-anchor="end" fill="#222">${esc(r.name.length>26?r.name.slice(0,25)+'…':r.name)}</text>`);
+    s.push(`<text x="${v>=0?x0-4:x0+4}" y="${yy+lh/2+4}" font-size="${fs-1}" text-anchor="${v>=0?'end':'start'}" fill="${cor}" font-weight="600">${haTxt(r.dif)} (${pctS(r.dev)})</text>`);
+  });
+  s.push(`<line x1="${x0}" x2="${x0}" y1="${m.t}" y2="${H-m.b}" stroke="#333"/>`);
+  s.push(`<text x="${(m.l+W-m.r)/2}" y="${H-6}" font-size="11" text-anchor="middle" fill="#444">${rotX} (mil ha)</text>`);
+  s.push('</svg>');
+  return s.join('');
+}
+
+/** Mapa coroplético do desvio % (projeção simples para o Brasil) */
+function svgMapa(geo, tab, {W=520, H=480, rotulos='nenhum', destaque=null, legenda=true}={}){
+  if(!geo) return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" ${FONTE}><rect x="1" y="1" width="${W-2}" height="${H-2}" fill="#fafafa" stroke="#ddd" stroke-dasharray="6 5"/><text x="${W/2}" y="${H/2}" font-size="14" text-anchor="middle" fill="#888">Mapa: contornos não encontrados em geo/</text></svg>`;
+  const porCode = new Map(tab.map(r=>[r.code, r])), porNome = new Map(tab.map(r=>[chaveNome(r.name), r]));
+  const achar = p => porNome.get(chaveNome(String(p.name ?? '').replace(/^\[|\]$/g,''))) || porCode.get(normCode(p.code ?? ''));
+  const aneisGeom = g => !g ? [] : g.type==='Polygon' ? [g.coordinates] : g.type==='MultiPolygon' ? g.coordinates
+                       : g.type==='GeometryCollection' ? g.geometries.flatMap(aneisGeom) : [];   // linhas/pontos ficam de fora
+  const aneis = f => aneisGeom(f.geometry);
+  let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity;
+  for(const f of geo.features) for(const pol of aneis(f)) for(const [lo,la] of pol[0]){ x0=Math.min(x0,lo); x1=Math.max(x1,lo); y0=Math.min(y0,la); y1=Math.max(y1,la); }
+  const leg = legenda ? 54 : 0, k = Math.cos((y0+y1)/2*Math.PI/180);
+  const esc_ = Math.min((W-20)/((x1-x0)*k), (H-20-leg)/(y1-y0));
+  const ox = (W - (x1-x0)*k*esc_)/2, oy = 10;
+  const P = ([lo,la]) => [ox + (lo-x0)*k*esc_, oy + (y1-la)*esc_];
+  const s=[`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" ${FONTE}>`], rots=[];
+  let casados=0;
+  for(const f of geo.features){
+    const r = achar(f.properties||{}); if(r) casados++;
+    let d=''; let maior=null, area=-1;
+    for(const pol of aneis(f)){
+      for(const anel of pol) d += 'M'+anel.map(c=>P(c).map(v=>v.toFixed(1)).join(',')).join('L')+'Z';
+      const pp = pol[0].map(P); let a=0, cx=0, cy=0;
+      for(let i=0,j=pp.length-1;i<pp.length;j=i++){ const c=pp[j][0]*pp[i][1]-pp[i][0]*pp[j][1]; a+=c; cx+=(pp[j][0]+pp[i][0])*c; cy+=(pp[j][1]+pp[i][1])*c; }
+      if(Math.abs(a)>area && a!==0){ area=Math.abs(a); maior=[cx/(3*a), cy/(3*a)]; }
+    }
+    const ehDest = destaque && r && destaque.has(r.code);
+    s.push(`<path d="${d}" fill="${corDesvio(r?.dev)}" stroke="${ehDest?'#111':'#555'}" stroke-width="${ehDest?1.6:0.5}" fill-rule="evenodd"/>`);
+    if(maior && rotulos!=='nenhum'){
+      const nome = (f.properties||{}).name || r?.name || '';
+      const t = rotulos==='sigla' ? (UF_SIGLA[nome] || UF_SIGLA[r?.name] || '') : nome;
+      if(t) rots.push(`<text x="${maior[0]}" y="${maior[1]}" font-size="${rotulos==='sigla'?10:11.5}" font-weight="600" text-anchor="middle" fill="#222" paint-order="stroke" stroke="#fff" stroke-width="2.5">${esc(t)}</text>`);
+    }
+  }
+  s.push(...rots);
+  if(legenda){
+    const lx=W/2-130, ly=H-40;
+    s.push(`<defs><linearGradient id="gDiv">${RDBU.map((c,i)=>`<stop offset="${i/(RDBU.length-1)}" stop-color="${c}"/>`).join('')}</linearGradient></defs>`);
+    s.push(`<rect x="${lx}" y="${ly}" width="260" height="11" fill="url(#gDiv)" stroke="#999" stroke-width=".5"/>`);
+    [-60,-40,-20,0,20,40,60].forEach((v,i)=>s.push(`<text x="${lx+i*260/6}" y="${ly+25}" font-size="10" text-anchor="middle" fill="#333">${v>0?'+':''}${v}%</text>`));
+    s.push(`<text x="${lx-6}" y="${ly+9}" font-size="10.5" text-anchor="end" fill="#8b1e1e" font-weight="700">Perda</text><text x="${lx+266}" y="${ly+9}" font-size="10.5" fill="#2b6cc4" font-weight="700">Ganho</text>`);
+    s.push(`<text x="${W/2}" y="${ly-6}" font-size="10.5" text-anchor="middle" fill="#444">Desvio vs média histórica do mês</text>`);
+  }
+  s.push('</svg>');
+  MAPA_CASADOS.push(`${casados}/${geo.features.length}`);
+  return s.join('');
+}
+const MAPA_CASADOS = [];
+
+/* elementos gráficos do factsheet */
+function triangulo(v, tam=88){
+  const ganho = v>=0, cor = ganho ? '#4a8fdb' : '#8b1e1e';
+  const pts = ganho ? `${tam/2},2 ${tam-2},${tam*0.8} 2,${tam*0.8}` : `2,2 ${tam-2},2 ${tam/2},${tam*0.8}`;
+  return `<svg width="${tam}" height="${tam*0.82}" viewBox="0 0 ${tam} ${tam*0.82}" ${FONTE}><polygon points="${pts}" fill="${cor}"/><text x="${tam/2}" y="${ganho?tam*0.62:tam*0.36}" font-size="${tam*0.22}" font-weight="700" fill="#fff" text-anchor="middle">${pctAbs(v)}</text></svg>`;
+}
+function anel(p, tam=46){
+  const r=tam/2-5, c=2*Math.PI*r, f=Math.max(0,Math.min(1,p/100));
+  return `<span class="anel"><svg width="${tam}" height="${tam}" viewBox="0 0 ${tam} ${tam}"><circle cx="${tam/2}" cy="${tam/2}" r="${r}" fill="none" stroke="#cfe2f6" stroke-width="8"/><circle cx="${tam/2}" cy="${tam/2}" r="${r}" fill="none" stroke="#4a8fdb" stroke-width="8" stroke-dasharray="${c*f} ${c}" transform="rotate(-90 ${tam/2} ${tam/2})"/></svg><span class="p">${nf(p,0)}%</span></span>`;
+}
+
+/* ===================== EXPORTAÇÕES ===================== */
+const GRAF = {};
+function baixar(nome, blob){ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=nome; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000); }
+function csvTexto(linhas){ return linhas.map(l=>l.map(v=>{ const s=String(v??''); return /[",\n]/.test(s)?`"${s.replace(/"/g,'""')}"`:s; }).join(',')).join('\n'); }
+function baixarCSV(id){ const g=GRAF[id]; baixar(`${g.nome}.csv`, new Blob(['﻿'+csvTexto(g.csv)], {type:'text/csv;charset=utf-8'})); }
+function baixarPNG(id){
+  const g=GRAF[id]; const img=new Image();
+  const vb = g.svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/); const w=+vb[1], h=+vb[2], k=4;
+  img.onload=()=>{ const c=document.createElement('canvas'); c.width=w*k; c.height=h*k;
+    c.getContext('2d').drawImage(img,0,0,w*k,h*k); c.toBlob(b=>baixar(`${g.nome}.png`, b), 'image/png'); };   // fundo transparente
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(g.svg.replace('var(--laranja,#e8862a)','#e8862a'));
+}
+let CONT=0;
+function graf(titulo, svg, csv, nome){
+  const id='g'+(++CONT); GRAF[id]={svg, csv, nome};
+  svg = svg.replace('<svg ', '<svg preserveAspectRatio="xMidYMin meet" ');   // desenho logo abaixo do título
+  return `<div class="bloco"><div class="tit-graf">${titulo}</div><span class="acoes"><button onclick="baixarPNG('${id}')">PNG</button><button onclick="baixarCSV('${id}')">CSV</button></span>${svg}</div>`;
+}
+const csvLinhas = rows => [['codigo','nome','agua_mes_ha','media_mes_ha','dif_ha','desvio_pct','rank_historico','n_meses_historico','posicao_no_mes','n_anos_mes','frase_posicao','agua_mes_anterior_ha','dif_mes_anterior_ha','var_mes_anterior_pct'],
+  ...rows.map(r=>[r.code, r.name, Math.round(r.agua), Math.round(r.media), Math.round(r.dif), Number.isFinite(r.dev)?r.dev.toFixed(1):'', r.rankHist, r.nHist, r.posMes, r.nMes, r.frase,
+                  Number.isFinite(r.aguaAnt)?Math.round(r.aguaAnt):'', Number.isFinite(r.difAnt)?Math.round(r.difAnt):'', Number.isFinite(r.pctAnt)?r.pctAnt.toFixed(1):''])];
+
+/* ===================== SLIDES ===================== */
+let NUM=0, VERSAO='';
+function slide(titulo, corpoHTML, estiloCorpo=''){
+  NUM++;
+  return `<section class="slide"><div class="hd"><img src="${LOGO}" alt="MapBiomas Água"><h2>${titulo}</h2><div class="num">${NUM}</div></div><div class="barra"></div>
+    <div class="corpo" style="${estiloCorpo}">${corpoHTML}</div>
+    <div class="rodape"><span>Fonte: MapBiomas Água — superfície de água mensal (v3), série a partir de ${ANO_INICIO}. Desvio = água do mês vs média do mesmo mês na série.</span><i>versão ${VERSAO}</i></div></section>`;
+}
+
+function slideCapa(ref){
+  NUM++;
+  const mes=MESES[ref%100-1], ano=Math.floor(ref/100);
+  return `<section class="slide capa">
+    <div class="bola" style="width:420px;height:420px;right:-90px;top:-120px;background:#8fbde9;opacity:.55"></div>
+    <div class="bola" style="width:360px;height:360px;right:120px;bottom:-170px;background:#4a8fdb;opacity:.85"></div>
+    <div class="bola" style="width:150px;height:150px;right:470px;bottom:110px;background:#a9cdf3;opacity:.8"></div>
+    <img src="${LOGO}" style="height:78px;width:auto;align-self:flex-start;margin-bottom:60px" alt="MapBiomas Água">
+    <h1>Superfície de água no Brasil em ${mes.toLowerCase()} de ${ano}</h1>
+    <div class="sub">Boletim mensal do Monitor da Água · série desde ${ANO_INICIO}</div>
+    <div style="height:6px;width:460px;margin:34px 0 18px;background:linear-gradient(90deg,#3d7fd4 0 30%,#8bb9ec 30% 55%,#4a8fdb 55% 78%,#a9cdf3 78%)"></div>
+    <i style="color:#666;font-size:14px">${VERSAO}</i></section>`;
+}
+
+function slideBrasil(R, ref){
+  const mes=ref%100, ano=Math.floor(ref/100), mesL=MESES[mes-1].toLowerCase(), b=R.brasil, ant=R.anoAnterior;
+  const csv1 = [['ano','mes','agua_ha'], ...[...R.sBR.entries()].filter(([ym])=>ym<=ref).sort((a,c)=>a[0]-c[0]).map(([ym,v])=>[Math.floor(ym/100), ym%100, Math.round(v)])];
+  const csv2 = [['ano','agua_mes_ha','media_mesmo_mes_ha'], ...R.serieAno.map(d=>[d.ano, Math.round(d.v), Math.round(b.media)])];
+  // mensagem do gráfico de linhas: meses do ano acima/abaixo da média
+  let acima=0, nm=0; const abaixoNomes=[];
+  for(let mm=1; mm<=mes; mm++){ const mt=metricas(R.sBR, ano*100+mm); if(Number.isFinite(mt.dev)){ nm++; if(mt.dev>=0) acima++; else abaixoNomes.push(MES3[mm-1].toLowerCase()); } }
+  const extremoAno = R.serieAno.reduce((x,y)=>y.v>x.v?y:x), minimoAno = R.serieAno.reduce((x,y)=>y.v<x.v?y:x);
+  return slide(`Superfície de água no Brasil em ${mesL} de ${ano}`, `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;align-items:center">
+      <div class="txt">Em <span class="dest">${mesL} de ${ano}</span>, o Brasil apresentou uma superfície de água de<div class="grande" style="margin-top:6px">${mha(b.agua)}</div></div>
+      <div class="callout">${triangulo(b.dev,76)}<div class="txt" style="font-size:13.5px">${acimaAbaixo(b.dev)} de ${mesL} (<b>${mha(b.media)}</b>, ${R.anoIni}–${ano})</div></div>
+      <div class="callout">${triangulo(b.pctAnt,76)}<div class="txt" style="font-size:13.5px">${b.pctAnt>=0?'<span class="dest">acima</span>':'<span class="dneg">abaixo</span>'} de <b>${nomeMesAnt(ref)}</b> (mês anterior), que teve <b>${mha(b.aguaAnt)}</b></div></div>
+      <div class="callout">${triangulo(ant.pct,76)}<div class="txt" style="font-size:13.5px">${ant.pct>=0?'<span class="dest">acima</span>':'<span class="dneg">abaixo</span>'} de ${mesL} de ${ano-1}, que teve <b>${mha(ant.v)}</b></div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:26px;min-height:0">
+      <div class="col">
+        ${graf(`Superfície de água mensal no Brasil (${R.anoIni} - ${ano})`, svgLinhasMensais(R.sBR, ref, {W:640,H:360,unid:1e6,rot:'Superfície de água (Mha)',dec:1,legenda:true}), csv1, '01_brasil_superficie_mensal_por_ano')}
+        <div class="msg">Em ${ano}, a linha azul-escura ficou <b>acima da média</b> (laranja) em <b>${acima} de ${nm} meses</b>${abaixoNomes.length?`; abaixo em ${abaixoNomes.join(', ')}`:''}. De ${nomeMesAnt(ref)} para ${mesL}, a superfície de água <b>${b.difAnt>=0?'aumentou':'diminuiu'} ${haTxt(Math.abs(b.difAnt),false)}</b> (${pctS(b.pctAnt)}).</div>
+      </div>
+      <div class="col">
+        ${graf(`Superfície de água em ${mesL}, por ano (${R.anoIni} - ${ano})`, svgSerieMes(R.serieAno, ano, b.media, {W:560,H:360}), csv2, `02_brasil_${slug(mesL)}_por_ano`)}
+        <div class="msg"><b>${b.frase[0].toUpperCase()+b.frase.slice(1)}</b> (série desde ${R.anoIni}). O maior ${mesL} foi em <b>${extremoAno.ano}</b> (${mha(extremoAno.v)}) e o menor em <b>${minimoAno.ano}</b> (${mha(minimoAno.v)}). No ranking de todos os meses, ${mesL} de ${ano} é o <b>${nf(b.rankHist)}º de ${b.nHist}</b>.</div>
+      </div>
+    </div>`, 'grid-template-rows:auto 1fr');
+}
+
+function resumoNivel(nv, tab, ref){
+  const mesL = MESES[ref%100-1].toLowerCase();
+  const val = tab.filter(r=>Number.isFinite(r.dev)), abaixo = val.filter(r=>r.dev<0);
+  const ex = extremos(tab);
+  return {mesL, val, abaixo, pAbaixo: val.length ? abaixo.length/val.length*100 : NaN, ex};
+}
+
+const UF_REGIAO = {AC:'Norte',AP:'Norte',AM:'Norte',PA:'Norte',RO:'Norte',RR:'Norte',TO:'Norte',AL:'Nordeste',BA:'Nordeste',CE:'Nordeste',MA:'Nordeste',PB:'Nordeste',PE:'Nordeste',PI:'Nordeste',RN:'Nordeste',SE:'Nordeste',DF:'Centro-Oeste',GO:'Centro-Oeste',MT:'Centro-Oeste',MS:'Centro-Oeste',ES:'Sudeste',MG:'Sudeste',RJ:'Sudeste',SP:'Sudeste',PR:'Sul',RS:'Sul',SC:'Sul'};
+const lista = arr => arr.length<=1 ? arr.join('') : arr.slice(0,-1).join(', ')+' e '+arr[arr.length-1];
+
+/** Mensagem que descreve o mapa: onde estão os tons mais vermelhos e os mais azuis */
+function msgMapa(nv, val){
+  const fortesP = val.filter(r=>r.dev<=-20).sort((a,b)=>a.dev-b.dev), fortesG = val.filter(r=>r.dev>=20).sort((a,b)=>b.dev-a.dev);
+  const nomes = rs => lista(rs.slice(0,4).map(r=>`<b>${esc(r.name)}</b>`)) + (rs.length>4?` e outras ${rs.length-4}`:'');
+  const P = fortesP.length ? fortesP : val.filter(r=>r.dev<0).sort((a,b)=>a.dev-b.dev).slice(0,2);
+  const G = fortesG.length ? fortesG : val.filter(r=>r.dev>0).sort((a,b)=>b.dev-a.dev).slice(0,2);
+  let t = '';
+  if(P.length) t += `No mapa, os tons ${fortesP.length?'mais vermelhos (perda maior que 20%)':'avermelhados'} aparecem em ${nomes(P)}`;
+  if(G.length) t += `${t?'; os ':'No mapa, os '}tons ${fortesG.length?'mais azuis (ganho maior que 20%)':'azulados'} em ${nomes(G)}`;
+  if(nv.ch==='estado'){
+    const reg = {}; val.filter(r=>r.dev<0).forEach(r=>{ const g=UF_REGIAO[UF_SIGLA[r.name]]; if(g) reg[g]=(reg[g]||0)+1; });
+    const top = Object.entries(reg).sort((a,b)=>b[1]-a[1])[0];
+    if(top) t += `. As perdas se concentram no <b>${top[0]}</b> (${top[1]} UFs)`;
+  }
+  return (t || 'Todos os territórios ficaram próximos da média histórica') + '.';
+}
+/** Mensagem que descreve o gráfico de barras: quantos ganharam/perderam e o saldo */
+function msgGrafico(nv, val, ref){
+  const g = val.filter(r=>r.dif>0), p = val.filter(r=>r.dif<0);
+  const sg = g.reduce((a,r)=>a+r.dif,0), sp = p.reduce((a,r)=>a+r.dif,0);
+  const subiram = val.filter(r=>r.difAnt>0).length;
+  return `No gráfico, <b>${g.length}</b> ${g.length===1?nv.um.replace(/^(região|bacia)$/, '$1'):(nv.ch==='bioma'?'biomas':nv.ch==='estado'?'UFs':'bacias')} ficaram acima da média (<span class="dest">${haTxt(sg)}</span>) e <b>${p.length}</b> abaixo (<span class="dneg">${haTxt(sp)}</span>), saldo de <b>${haTxt(sg+sp)}</b>. Em relação a ${nomeMesAnt(ref)}, <b>${subiram} de ${val.length}</b> tiveram aumento de superfície de água.`;
+}
+
+/** Caixa do mês anterior: maior aumento e maior redução em hectares */
+function caixaMesAnt(ordAnt, mAnt){
+  const up = ordAnt.find(r=>r.dif>0), dn = ordAnt.slice().reverse().find(r=>r.dif<0);
+  if(!up && !dn) return '';
+  return `<div class="caixa" style="font-size:12.5px;border-style:dashed"><span style="font-size:10px;letter-spacing:.05em;color:#777">EM RELAÇÃO A ${mAnt.toUpperCase()}</span><br>`
+    + (up ? `Maior aumento: <b class="dest">${esc(up.name)}</b> <b>${haTxt(up.dif)}</b> (${pctS(up.dev)})<br>` : 'Nenhum território aumentou.<br>')
+    + (dn ? `Maior redução: <b class="dneg">${esc(dn.name)}</b> <b>${haTxt(dn.dif)}</b> (${pctS(dn.dev)})` : 'Nenhum território diminuiu.') + `</div>`;
+}
+
+function slideNivelMapa(nv, tab, ref, geo, opts={}){
+  if(!DADOS[nv.ch]) return slide(`${nv.rot}`, `<div class="caixa">Planilha <code>${nv.arq}</code> ainda não publicada em dados/.</div>`);
+  const ano=Math.floor(ref/100), {mesL, val, abaixo, pAbaixo} = resumoNivel(nv, tab, ref);
+  const mAnt = nomeMesAnt(ref);
+  const ord = val.slice().sort((a,b)=>b.dif-a.dif);
+  // gráfico principal: diferença absoluta vs média (com topN: até N ganhos e até N perdas)
+  const gan = ord.filter(r=>r.dif>0), per = ord.filter(r=>r.dif<0);
+  const corta = opts.topN && ord.length > 2*opts.topN;
+  const barras = corta ? [...gan.slice(0,opts.topN), ...per.slice(-opts.topN)] : ord;
+  const tituloBarras = corta ? `${Math.min(opts.topN,gan.length)} maiores ganhos e ${Math.min(opts.topN,per.length)} ${per.length>opts.topN?'maiores perdas':(per.length===1?'perda':'perdas')} em relação à média histórica` : 'Variação absoluta em relação à média histórica';
+  // gráfico 2: diferença absoluta vs mês anterior
+  const nAnt = barras.length > 14 ? 5 : barras.length > 8 ? 4 : 99;
+  const ordAnt = val.filter(r=>Number.isFinite(r.difAnt)).map(r=>({...r, dif:r.difAnt, dev:r.pctAnt})).sort((a,b)=>b.dif-a.dif);
+  const barrasAnt = ordAnt.length > 2*nAnt ? [...ordAnt.filter(r=>r.dif>0).slice(0,nAnt), ...ordAnt.filter(r=>r.dif<0).slice(-nAnt)] : ordAnt;
+  const tituloAnt = ordAnt.length > 2*nAnt ? `${nAnt} maiores aumentos e reduções em relação a ${mAnt}` : `Variação absoluta em relação a ${mAnt}`;
+  // destaques: absolutos (ha) e relativos (%)
+  const absG = gan[0], absP = per[per.length-1];
+  const relOrd = val.slice().sort((a,b)=>b.dev-a.dev), relG = relOrd.find(r=>r.dev>0), relP = relOrd.slice().reverse().find(r=>r.dev<0);
+  const linhaRank = r => `${r.frase[0].toUpperCase()+r.frase.slice(1)} · <b>${nf(r.rankHist)}º de ${r.nHist}</b> no ranking histórico · vs ${mAnt}: <b class="${r.difAnt>=0?'dest':'dneg'}">${haTxt(r.difAnt)}</b>`;
+  const caixaAbs = (r, ganho) => r ? `<div class="caixa" style="font-size:13px"><span style="font-size:10px;letter-spacing:.05em;color:#777">${ganho?'MAIOR GANHO ABSOLUTO':'MAIOR PERDA ABSOLUTA'}</span><br><b class="${ganho?'dest':'dneg'}" style="font-size:16px">${esc(r.name)}</b>: <b style="font-size:16px">${haTxt(r.dif)}</b> em relação à média histórica de ${mesL} (${nf(r.agua)} ha vs ${nf(r.media)} ha)<br><span style="font-size:11.5px">${linhaRank(r)}</span></div>`
+                                      : `<div class="caixa" style="font-size:13px">Nenhum território ficou ${ganho?'acima':'abaixo'} da média histórica.</div>`;
+  const caixaRel = (r, ganho) => r ? `<div class="msg" style="border-left-color:${ganho?'#2b6cc4':'#8b1e1e'}"><b>${ganho?'Maior ganho relativo':'Maior perda relativa'}:</b> <b class="${ganho?'dest':'dneg'}">${esc(r.name)}</b>, <b>${pctS(r.dev)}</b> (${haTxt(r.dif)})</div>` : '';
+  return slide(`Superfície de água ${opts.titulo||('n'+(nv.ch==='bioma'?'os':'as')+' '+nv.rot.toLowerCase())} em ${mesL} de ${ano}`, `
+    <div class="col">
+      ${graf(`${opts.tituloMapa||('Desvio da superfície de água por '+nv.um)} em ${mesL} de ${ano} em relação à média histórica (%)`, svgMapa(geo, tab, {W:520,H:430,rotulos:opts.rotulos||'nenhum',destaque:new Set([relG?.code,relP?.code].filter(Boolean))}), csvLinhas(val), `${opts.n}_mapa_${slug(nv.rot)}`)}
+      ${caixaRel(relG, true)}${caixaRel(relP, false)}
+      <div class="msg">${msgMapa(nv, val)}</div>
+    </div>
+    <div class="col">
+      ${graf(tituloBarras, svgBarras(barras, {lh: barras.length>20?14:barras.length>12?17:24}), csvLinhas(barras), `${opts.n2}_ranking_${slug(nv.rot)}`)}
+      ${graf(tituloAnt, svgBarras(barrasAnt, {lh: barrasAnt.length>8?15:20, rotX:`Diferença absoluta vs ${mAnt}`}), csvLinhas(barrasAnt), `${opts.n2}b_mes_anterior_${slug(nv.rot)}`)}
+      <div class="msg">${msgGrafico(nv, val, ref)}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="callout">${anel(pAbaixo)}</div>
+      <div class="txt" style="margin-top:-8px;font-size:13.5px">${nv.das} <span class="dest">(${abaixo.length} de ${val.length})</span> estiveram com superfície de água <span class="dneg">abaixo da média histórica</span> de ${mesL}</div>
+      ${caixaAbs(absG, true)}
+      ${caixaAbs(absP, false)}
+      ${caixaMesAnt(ordAnt, mAnt)}
+    </div>`, 'grid-template-columns:1fr 1.15fr .82fr');
+}
+
+function slideBiomasMensal(R, ref){
+  const ano=Math.floor(ref/100), mesL=MESES[ref%100-1].toLowerCase();
+  const T = DADOS.bioma, tab = R.tabs.bioma;
+  const ordem = ['Amazônia','Caatinga','Cerrado','Mata Atlântica','Pampa','Pantanal'];
+  const lista = [...T.values()].sort((a,b)=>{ const ia=ordem.indexOf(a.name), ib=ordem.indexOf(b.name); return (ia<0?99:ia)-(ib<0?99:ib); }).slice(0,6);
+  const meses = (t)=>{ let n=0, ab=0; for(let mm=1;mm<=ref%100;mm++){ const mt=metricas(t.serie, ano*100+mm); if(Number.isFinite(mt.dev)){ n++; if(mt.dev<0) ab++; } } return {n, ab}; };
+  const info = lista.map(t=>({t, ...meses(t), r: tab.find(r=>r.code===t.code)}));
+  const todosAbaixo = info.filter(i=>i.n && i.ab===i.n), todosAcima = info.filter(i=>i.n && i.ab===0);
+  const pior = info.filter(i=>i.r).sort((a,b)=>a.r.dev-b.r.dev)[0];
+  const graficos = lista.map(t=>{
+    const csv=[['ano','mes','agua_ha'], ...[...t.serie.entries()].filter(([ym])=>ym<=ref).sort((a,b)=>a[0]-b[0]).map(([ym,v])=>[Math.floor(ym/100), ym%100, Math.round(v)])];
+    return graf(esc(t.name), svgLinhasMensais(t.serie, ref, {W:420,H:215}), csv, `bioma_${slug(t.name)}_mensal`);
+  }).join('');
+  const nomes = arr => arr.map(i=>`<b>${esc(i.t.name)}</b>`).join(', ').replace(/, ([^,]*)$/,' e $1');
+  return slide(`Superfície de água mensal nos biomas (${R.anoIni} - ${ano})`, `
+    <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr);gap:4px 18px;min-height:0">${graficos}</div>
+    <div style="display:flex;flex-direction:column;gap:16px;justify-content:center">
+      ${pior?`<div class="callout">${triangulo(pior.r.dev)}<div class="txt">Em ${mesL} de ${ano}, a <span class="dest">${esc(pior.t.name)}</span> ficou ${acimaAbaixo(pior.r.dev)} — ${pior.r.frase}</div></div>`:''}
+      ${todosAbaixo.length?`<div class="caixa">${nomes(todosAbaixo)} ${todosAbaixo.length>1?'tiveram':'teve'} <span class="dneg">todos os meses de ${ano}</span> até ${mesL} abaixo da média histórica</div>`:''}
+      ${todosAcima.length?`<div class="caixa">${nomes(todosAcima)} ${todosAcima.length>1?'tiveram':'teve'} <span class="dest">todos os meses de ${ano}</span> até ${mesL} acima da média histórica</div>`:''}
+      <div class="txt" style="font-size:12.5px;display:grid;gap:6px;margin-top:8px">
+        <span><svg width="30" height="8"><line x1="0" x2="30" y1="4" y2="4" stroke="#0d1b5e" stroke-width="3.2"/></svg> Superfície de água mensal de ${ano}</span>
+        <span><svg width="30" height="8"><line x1="0" x2="30" y1="4" y2="4" stroke="#e8862a" stroke-width="2.6"/></svg> Média mensal histórica de ${R.anoIni} a ${ano}</span>
+        <span><svg width="30" height="10"><defs><linearGradient id="gl2"><stop offset="0" stop-color="${corAno(0)}"/><stop offset="1" stop-color="${corAno(1)}"/></linearGradient></defs><rect width="30" height="10" fill="url(#gl2)"/></svg> Anos anteriores (${R.anoIni} claro → ${ano-1} escuro)</span>
+      </div>
+    </div>`, 'grid-template-columns:1.9fr 1fr');
+}
+
+function slideBacias(R, ref){
+  const ano=Math.floor(ref/100), mesL=MESES[ref%100-1].toLowerCase();
+  const coluna = (nv, idx) => {
+    if(!DADOS[nv.ch]) return `<div style="border:1.5px dashed #4a8fdb;border-radius:14px;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px" class="txt"><div><b>${nv.rot}</b><br><br>Planilha <code>${nv.arq}</code> ainda não publicada em dados/.</div></div>`;
+    const tab=R.tabs[nv.ch], {val, abaixo, pAbaixo} = resumoNivel(nv, tab, ref);
+    const perdas = val.slice().sort((a,b)=>a.dif-b.dif).slice(0,3);
+    return `<div style="border:1.5px solid #4a8fdb;border-radius:14px;padding:8px 12px;display:grid;grid-template-rows:1fr auto auto;min-height:0">
+      ${graf(nv.rot, svgMapa(GEO[nv.ch], tab, {W:560,H:300,legenda:idx===0}), csvLinhas(val), `${idx===0?'07':'08'}_mapa_${slug(nv.rot)}`)}
+      <div style="display:flex;align-items:center;gap:10px">${anel(pAbaixo,40)}<div class="txt" style="font-size:12.5px">${nv.das} <span class="dest">(${abaixo.length} de ${val.length})</span> estiveram <span class="dneg">abaixo</span> da média histórica de ${mesL}</div></div>
+      ${graf(`Maiores perdas — ${nv.rot}`, svgBarras(perdas, {W:500, lh:22}), csvLinhas(perdas), `${idx===0?'09':'10'}_maiores_perdas_${slug(nv.rot)}`)}
+    </div>`;
+  };
+  return slide(`Dinâmica da superfície de água nas bacias hidrográficas em ${mesL} de ${ano}`,
+    coluna(NIVEIS[2],0) + coluna(NIVEIS[3],1), 'grid-template-columns:1fr 1fr;padding-bottom:22px');
+}
+
+
+function tabelaRank(lista, titulo, refYm, cor){
+  const linhas = lista.map(r=>`<tr${r.ym===refYm?' style="background:#fff3c4;font-weight:700"':''}><td>${r.rank}º</td><td>${r.rot}</td><td>${nf(r.v)}</td><td>${nf(r.media)}</td><td style="color:${r.dev<0?'#8b1e1e':'#2b6cc4'};font-weight:600">${pctS(r.dev)}</td></tr>`).join('');
+  return `<div><div class="tit-graf" style="color:${cor}">${titulo}</div>
+    <table class="rk"><thead><tr><th>Rank</th><th>Mês</th><th>Água no mês (ha)</th><th>Média do mês (ha)</th><th>Desvio</th></tr></thead><tbody>${linhas}</tbody></table></div>`;
+}
+function slideRankingHistorico(R, ref){
+  const ano=Math.floor(ref/100), mes=ref%100, mesL=MESES[mes-1].toLowerCase();
+  const hist=[...R.sBR.entries()].filter(([ym])=>ym<=ref);
+  const md={}; for(let m=1;m<=12;m++){ const xs=hist.filter(([y])=>y%100===m).map(([,v])=>v); md[m]=xs.reduce((a,c)=>a+c,0)/xs.length; }
+  const todos = hist.map(([ym,v])=>({ym, v, media:md[ym%100], dev:(v-md[ym%100])/md[ym%100]*100, rot:`${String(ym%100).padStart(2,'0')}/${Math.floor(ym/100)}`}))
+                    .sort((a,b)=>b.dev-a.dev);
+  todos.forEach((r,i)=>{ r.rank = i>0 && r.dev===todos[i-1].dev ? todos[i-1].rank : i+1; });
+  const N=todos.length, b=R.brasil, atual=todos.find(r=>r.ym===ref);
+  const ganho=todos.slice(0,20), perda=todos.slice(-20).reverse();
+  const csv=[['rank_geral','mes','ano','agua_mes_ha','media_mes_ha','desvio_pct'], ...todos.map(r=>[r.rank, r.ym%100, Math.floor(r.ym/100), Math.round(r.v), Math.round(r.media), r.dev.toFixed(1)])];
+  GRAF['rk']={svg:'', csv, nome:'11_brasil_ranking_historico_meses'};
+  return slide(`Ranking histórico da superfície de água no Brasil (${R.anoIni} - ${ano})`, `
+    <div style="display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:22px;align-items:center">
+      <div class="txt">${MESES[mes-1]} de ${ano} ocupa a posição<div class="grande" style="margin:6px 0">${nf(atual.rank)}º <span style="font-size:22px;color:#444">de ${N} meses</span></div>no ranking histórico geral (1 = maior ganho em relação à média do mês)</div>
+      <div class="caixa"><span class="big">${b.frase[0].toUpperCase()+b.frase.slice(1)}</span><br>entre os ${b.nMes} ${mesL}s da série histórica</div>
+      <div class="caixa">Desvio de <span class="${b.dev>=0?'dest':'dneg'}">${pctS(b.dev)}</span> em relação à média de ${mesL} (${mha(b.media)}).<br><span style="font-size:12.5px">Mês com maior perda da série: <b>${perda[0].rot}</b> (${pctS(perda[0].dev)}) · maior ganho: <b>${ganho[0].rot}</b> (${pctS(ganho[0].dev)})</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:26px;min-height:0;position:relative">
+      <span class="acoes"><button onclick="baixarCSV('rk')">CSV</button></span>
+      ${tabelaRank(perda, '20 meses com MAIS PERDA de superfície de água', ref, '#8b1e1e')}
+      ${tabelaRank(ganho, '20 meses com MAIS GANHO de superfície de água', ref, '#2b6cc4')}
+    </div>
+    <div class="txt" style="font-size:11.5px;color:#555">O ranking compara cada mês com a média histórica do <b>mesmo mês do calendário</b> (ex.: dezembro de ${ano} vs média de todos os dezembros), considerando a série até ${mesL} de ${ano}. Brasil = soma dos biomas.${ganho.concat(perda).some(r=>r.ym===ref)?' A linha em amarelo é o mês deste boletim.':''}</div>`,
+    'grid-template-rows:auto 1fr auto');
+}
+
+/* ===================== MONTAGEM ===================== */
+let DADOS=null, GEO={}; const FALTANDO=[]; let AVISO_REPETIDO='';
+function montar(ref){
+  NUM=0; CONT=0; MAPA_CASADOS.length=0;
+  const mes=ref%100, ano=Math.floor(ref/100);
+  const sBR = serieBrasil(DADOS.bioma);
+  const b = metricas(sBR, ref); b.frase = frasePos(b.posMes, b.nMes, mes);
+  const hist = [...sBR.entries()].filter(([ym])=>ym<=ref);
+  const mediaHist = hist.reduce((a,[,v])=>a+v,0)/hist.length;
+  const vAnt = sBR.get((ano-1)*100+mes);
+  const R = {
+    sBR, brasil:b, mediaHist, devHist:(b.agua-mediaHist)/mediaHist*100,
+    anoAnterior:{v:vAnt, dif: vAnt!==undefined? b.agua-vAnt : NaN, pct: vAnt? (b.agua-vAnt)/vAnt*100 : NaN},
+    serieAno: hist.filter(([ym])=>ym%100===mes).map(([ym,v])=>({ano:Math.floor(ym/100), v})).sort((a,c)=>a.ano-c.ano),
+    anoIni: Math.floor(Math.min(...hist.map(([ym])=>ym))/100),
+    tabs: Object.fromEntries(NIVEIS.map(nv=>[nv.ch, tabelaNivel(DADOS[nv.ch], ref)])),
+  };
+  let html = slideCapa(ref) + slideBrasil(R, ref)
+    + slideNivelMapa(NIVEIS[0], R.tabs.bioma, ref, GEO.bioma, {rotulos:'nome', n:'03', n2:'04', tituloMapa:'Desvio da superfície de água por bioma'})
+    + slideBiomasMensal(R, ref)
+    + slideNivelMapa(NIVEIS[1], R.tabs.estado, ref, GEO.estado, {titulo:'nas Unidades da Federação (UFs)', rotulos:'sigla', n:'05', n2:'06', tituloMapa:'Desvio da superfície de água por UF'})
+    + slideNivelMapa(NIVEIS[2], R.tabs.bacia_n1, ref, GEO.bacia_n1, {titulo:'nas bacias hidrográficas nível 1', n:'07', n2:'08', tituloMapa:'Desvio da superfície de água por bacia hidrográfica nível 1'})
+    + slideNivelMapa(NIVEIS[3], R.tabs.bacia_n2, ref, GEO.bacia_n2, {titulo:'nas bacias hidrográficas nível 2', topN:10, n:'09', n2:'10', tituloMapa:'Desvio da superfície de água por bacia hidrográfica nível 2'})
+    + slideRankingHistorico(R, ref);
+  document.getElementById('folhas').innerHTML = html;
+  window.__BOLETIM__ = {ref, brasil:b, mediaHist, extremos:Object.fromEntries(NIVEIS.map(nv=>[nv.ch, extremos(R.tabs[nv.ch])])), tabelas:R.tabs, mapasCasados:[...MAPA_CASADOS]};
+  document.getElementById('dump').textContent = JSON.stringify(window.__BOLETIM__);
+  document.getElementById('status').innerHTML = `Boletim de: ${String(mes).padStart(2,'0')}/${ano}`
+    + (FALTANDO.length ? ` · <span class="erro">faltando em dados/: ${FALTANDO.join(', ')}</span>` : '')
+    + (AVISO_REPETIDO ? ` · <span class="erro">⚠ ${AVISO_REPETIDO}</span>` : '');
+}
+
+async function iniciar(){
+  try{
+    VERSAO = new Date().toLocaleDateString('pt-BR');
+    DADOS = {};
+    await Promise.all(NIVEIS.map(async nv=>{     // contornos são opcionais: sem eles o mapa mostra um aviso
+      try{ const r = await fetch(`${GEO_BASE}${nv.ch}.geojson`); GEO[nv.ch] = r.ok ? await r.json() : null; }catch(e){ GEO[nv.ch] = null; }
+    }));
+    FALTANDO.length = 0;
+    await Promise.all(NIVEIS.map(async nv=>{
+      const r = await fetch(DADOS_BASE + nv.arq, {cache:'no-cache'});
+      if(!r.ok){
+        if(nv.ch==='bioma') throw new Error(`Não consegui baixar ${nv.arq} (HTTP ${r.status}) — ela é obrigatória (forma o total do Brasil)`);
+        DADOS[nv.ch] = null; FALTANDO.push(nv.arq); return;
+      }
+      const nomesGeo = GEO[nv.ch] ? GEO[nv.ch].features.map(f=>String((f.properties||{}).name||'')) : (nv.ch==='estado' ? Object.keys(UF_SIGLA) : []);
+      DADOS[nv.ch] = lerNivel(await r.text(), nv.arq, nomesGeo);
+    }));
+    const yms = [...serieBrasil(DADOS.bioma).keys()].sort((a,b)=>b-a);
+    const sel = document.getElementById('selMes');
+    sel.innerHTML = yms.slice(0,36).map(ym=>`<option value="${ym}">${String(ym%100).padStart(2,'0')}/${Math.floor(ym/100)}</option>`).join('');
+    // último mês que só repete o anterior (ex.: dez = nov) não é dado novo: abre no mês anterior e avisa
+    AVISO_REPETIDO = '';
+    const repetidos = [...DADOS.bioma.values()].filter(t=>{ const a=t.serie.get(yms[0]), b=t.serie.get(mesAnterior(yms[0])); return a!==undefined && b!==undefined && Math.abs(a-b) < 5; }).length;
+    const padrao = (repetidos >= DADOS.bioma.size/2 && yms.length>1) ? yms[1] : yms[0];
+    if(padrao !== yms[0]) AVISO_REPETIDO = `${String(yms[0]%100).padStart(2,'0')}/${Math.floor(yms[0]/100)} repete os valores de ${String(yms[1]%100).padStart(2,'0')}/${Math.floor(yms[1]/100)} em ${repetidos} de ${DADOS.bioma.size} biomas — boletim aberto no mês anterior`;
+    const pedido = +(Q.get('mes')||'').replace('-','');
+    const ref = yms.includes(pedido) ? pedido : padrao;
+    sel.value = ref; sel.onchange = ()=>montar(+sel.value);
+    montar(ref);
+    document.getElementById('btnCsvTudo').onclick = ()=>{
+      const B = window.__BOLETIM__; const linhas=[['nivel','codigo','nome','agua_mes_ha','media_mes_ha','desvio_pct','rank_historico','n_meses_historico','frase_posicao']];
+      for(const nv of NIVEIS) for(const r of B.tabelas[nv.ch]) linhas.push([nv.rot, r.code, r.name, Math.round(r.agua), Math.round(r.media), Number.isFinite(r.dev)?r.dev.toFixed(1):'', r.rankHist, r.nHist, r.frase]);
+      baixar(`boletim_agua_${B.ref}_todos_territorios.csv`, new Blob(['﻿'+csvTexto(linhas)], {type:'text/csv;charset=utf-8'}));
+    };
+  }catch(e){
+    document.getElementById('status').innerHTML = `<span class="erro">${esc(e.message)}</span>`;
+    document.getElementById('dump').textContent = JSON.stringify({erro:e.message});
+  }
+}
+iniciar();
+</script>
+<script type="application/json" id="dump"></script>
+</body>
+</html>
